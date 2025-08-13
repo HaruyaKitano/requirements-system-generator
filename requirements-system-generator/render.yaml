@@ -4,17 +4,17 @@ services:
     name: requirements-backend
     env: python
     region: singapore
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    buildCommand: "python -m pip install -r backend/requirements.txt"
+    startCommand: "python -m uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: OPENAI_API_KEY
         sync: false
 
-  # フロントエンド (React)
+  # フロントエンド (React)  
   - type: web
     name: requirements-frontend
     env: static
-    region: singapore  
+    region: singapore
     buildCommand: "cd frontend && npm install && npm run build"
     staticPublishPath: frontend/build
     envVars:
