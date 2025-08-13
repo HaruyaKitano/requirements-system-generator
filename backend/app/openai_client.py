@@ -14,7 +14,11 @@ class OpenAIClient:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required")
         
-        self.client = OpenAI(api_key=self.api_key)
+        # 最も基本的な初期化方法でproxies問題を回避
+        import os
+        os.environ['OPENAI_API_KEY'] = self.api_key
+        self.client = OpenAI()
+            
         self.model = "gpt-4-turbo-preview"
     
     async def generate_system_requirements(self, requirements_text: str) -> str:
