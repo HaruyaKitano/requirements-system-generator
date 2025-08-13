@@ -1,0 +1,22 @@
+services:
+  # バックエンド (FastAPI)
+  - type: web
+    name: requirements-backend
+    env: python
+    region: singapore
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+
+  # フロントエンド (React)
+  - type: web
+    name: requirements-frontend
+    env: static
+    region: singapore  
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: frontend/build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://requirements-backend.onrender.com
