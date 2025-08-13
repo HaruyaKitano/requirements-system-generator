@@ -14,9 +14,22 @@ class OpenAIClient:
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY environment variable is required")
         
-        # 最も基本的な初期化方法でproxies問題を回避
-        os.environ['OPENAI_API_KEY'] = self.api_key
-        self.client = OpenAI()
+        # HTTPXクライアント問題を回避
+        try:
+            import httpx
+            # シンプルなHTTPクライアントを作成
+            http_client = httpx.Client(timeout=30.0)
+            self.client = OpenAI(api_key=self.api_key, http_client=http_client)
+        except Exception:
+            # フォールバック: 環境変数経由で初期化
+            original_key = os.environ.get('OPENAI_API_KEY')
+            os.environ['OPENAI_API_KEY'] = self.api_key
+            self.client = OpenAI()
+            # 元の環境変数を復元
+            if original_key:
+                os.environ['OPENAI_API_KEY'] = original_key
+            elif 'OPENAI_API_KEY' in os.environ:
+                del os.environ['OPENAI_API_KEY']
             
         self.model = "gpt-4-turbo-preview"
     
