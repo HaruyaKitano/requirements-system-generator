@@ -15,7 +15,6 @@ class OpenAIClient:
             raise ValueError("OPENAI_API_KEY environment variable is required")
         
         # 最も基本的な初期化方法でproxies問題を回避
-        import os
         os.environ['OPENAI_API_KEY'] = self.api_key
         self.client = OpenAI()
             
