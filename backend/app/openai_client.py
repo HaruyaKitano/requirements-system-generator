@@ -17,14 +17,14 @@ class OpenAIClient:
         # HTTPXクライアント問題を回避
         try:
             import httpx
-            # シンプルなHTTPクライアントを作成
-            http_client = httpx.Client(timeout=30.0)
-            self.client = OpenAI(api_key=self.api_key, http_client=http_client)
+            # シンプルなHTTPクライアントを作成（タイムアウトを延長）
+            http_client = httpx.Client(timeout=120.0)
+            self.client = OpenAI(api_key=self.api_key, http_client=http_client, timeout=120.0)
         except Exception:
             # フォールバック: 環境変数経由で初期化
             original_key = os.environ.get('OPENAI_API_KEY')
             os.environ['OPENAI_API_KEY'] = self.api_key
-            self.client = OpenAI()
+            self.client = OpenAI(timeout=120.0)
             # 元の環境変数を復元
             if original_key:
                 os.environ['OPENAI_API_KEY'] = original_key
