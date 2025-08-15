@@ -553,7 +553,7 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
                 onClick={() => handleGenerateNext(item.type)}
                 style={{
                   padding: '20px 24px',
-                  border: 'none',
+                  border: '1px solid rgba(148, 163, 184, 0.1)',
                   borderRadius: '16px',
                   background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                   color: '#1f2937',
@@ -565,8 +565,7 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
                   justifyContent: 'center',
                   gap: '12px',
                   transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                  border: '1px solid rgba(148, 163, 184, 0.1)'
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)';

@@ -88,7 +88,7 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
               onClick={onDownload}
               style={{
                 padding: '12px 24px',
-                border: 'none',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '12px',
                 background: 'rgba(255, 255, 255, 0.2)',
                 color: 'white',
@@ -96,7 +96,6 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({
                 fontSize: '15px',
                 fontWeight: 600,
                 backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
                 transition: 'all 0.2s ease',
                 display: 'flex',
                 alignItems: 'center',

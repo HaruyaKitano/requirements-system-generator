@@ -280,11 +280,10 @@ const App: React.FC = () => {
             }}>システム要件定義書ジェネレーター</h1>
           </div>
           <p style={{
-            margin: 0,
+            margin: '0 auto',
             fontSize: '18px',
             opacity: 0.9,
             maxWidth: '600px',
-            margin: '0 auto',
             lineHeight: 1.6,
             fontWeight: 400
           }}>AI駆動の自動生成で、要件定義書から包括的なシステム要件定義書を瞬時に作成</p>
