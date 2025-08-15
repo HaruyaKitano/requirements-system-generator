@@ -160,44 +160,73 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
     }}>
       {sessionId && (
         <div style={{
-          backgroundColor: '#e7f3ff',
-          border: '1px solid #b3d9ff',
-          borderRadius: '8px',
-          padding: '16px',
-          marginBottom: '20px',
-          textAlign: 'center'
+          background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+          border: '1px solid #93c5fd',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '32px',
+          textAlign: 'center',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
-            marginBottom: '8px'
+            gap: '12px',
+            marginBottom: '16px'
           }}>
-            <span style={{ fontSize: '20px' }}>💾</span>
-            <span style={{ fontWeight: 600, color: '#0066cc' }}>アップロード済みドキュメント</span>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+              color: 'white'
+            }}>💾</div>
+            <span style={{ 
+              fontWeight: 700, 
+              color: '#1e40af',
+              fontSize: '18px',
+              letterSpacing: '-0.025em'
+            }}>ドキュメント保存済み</span>
           </div>
           <p style={{
-            margin: '0 0 12px 0',
-            fontSize: '14px',
-            color: '#0066cc'
+            margin: '0 0 20px 0',
+            fontSize: '15px',
+            color: '#1e40af',
+            lineHeight: 1.6,
+            opacity: 0.9
           }}>
-            既にアップロードされたドキュメントから追加の要件を生成できます
+            既にアップロードされたドキュメントから<br />追加の要件を生成できます
           </p>
           <button
             onClick={handleSessionBasedGeneration}
             style={{
-              padding: '8px 20px',
+              padding: '12px 24px',
               border: 'none',
-              borderRadius: '6px',
-              backgroundColor: '#0066cc',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
               color: 'white',
               cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: 500
+              fontSize: '15px',
+              fontWeight: 600,
+              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.3)',
+              transform: 'translateY(0)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 25px 0 rgba(59, 130, 246, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(59, 130, 246, 0.3)';
             }}
           >
-            追加要件を生成
+            ✨ 追加要件を生成
           </button>
         </div>
       )}
@@ -205,15 +234,20 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
       <div
         {...getRootProps()}
         style={{
-          border: '2px dashed #ccc',
-          borderRadius: '8px',
-          padding: '40px',
+          border: `2px dashed ${isDragActive ? '#667eea' : '#cbd5e1'}`,
+          borderRadius: '20px',
+          padding: '48px 32px',
           textAlign: 'center',
           cursor: isLoading ? 'not-allowed' : 'pointer',
           transition: 'all 0.3s ease',
-          backgroundColor: isDragActive ? '#e6f3ff' : '#fafafa',
-          borderColor: isDragActive ? '#007bff' : '#ccc',
-          opacity: isLoading ? 0.6 : 1
+          background: isDragActive 
+            ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' 
+            : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          opacity: isLoading ? 0.6 : 1,
+          boxShadow: isDragActive 
+            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(102, 126, 234, 0.1)'
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          transform: isDragActive ? 'scale(1.02)' : 'scale(1)'
         }}
       >
         <input {...getInputProps()} />
@@ -221,42 +255,144 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '16px'
+          gap: '24px'
         }}>
-          <div style={{
-            fontSize: '48px',
-            opacity: 0.7
-          }}>📄</div>
           {isLoading ? (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
+            <>
               <div style={{
-                width: '32px',
-                height: '32px',
-                border: '3px solid #f3f3f3',
-                borderTop: '3px solid #007bff',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
-              <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>処理中...</p>
-            </div>
+                width: '64px',
+                height: '64px',
+                position: 'relative'
+              }}>
+                <div style={{
+                  width: '100%',
+                  height: '100%',
+                  border: '4px solid #e5e7eb',
+                  borderTop: '4px solid #667eea',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '20px'
+                }}>📄</div>
+              </div>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '18px', 
+                  color: '#1f2937',
+                  fontWeight: 600
+                }}>アップロード中...</p>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '14px', 
+                  color: '#6b7280'
+                }}>しばらくお待ちください</p>
+              </div>
+            </>
           ) : (
             <>
-              {isDragActive ? (
-                <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>ファイルをここにドロップしてください</p>
-              ) : (
-                <div>
-                  <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>
-                    {sessionId ? '新しい要件定義書をアップロード' : '要件定義書をドラッグ&ドロップするか、クリックしてファイルを選択'}
-                  </p>
-                  <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>対応形式: PDF, Word (.docx, .doc), Excel (.xlsx, .xls)</p>
-                  <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>最大ファイルサイズ: 10MB</p>
-                </div>
-              )}
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: isDragActive 
+                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                  : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                borderRadius: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                transform: isDragActive ? 'scale(1.1)' : 'scale(1)',
+                transition: 'all 0.3s ease',
+                boxShadow: isDragActive 
+                  ? '0 10px 20px rgba(102, 126, 234, 0.3)'
+                  : '0 4px 10px rgba(0, 0, 0, 0.1)'
+              }}>
+                {isDragActive ? '🎯' : '📄'}
+              </div>
+              
+              <div style={{ maxWidth: '400px' }}>
+                {isDragActive ? (
+                  <div>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '20px', 
+                      color: '#1f2937',
+                      fontWeight: 700,
+                      marginBottom: '8px'
+                    }}>ここにドロップ！</p>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '15px', 
+                      color: '#6b7280'
+                    }}>ファイルを離して、アップロードを開始してください</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '18px', 
+                      color: '#1f2937',
+                      fontWeight: 600,
+                      marginBottom: '8px'
+                    }}>
+                      {sessionId ? '新しい要件定義書をアップロード' : 'ファイルをドラッグ&ドロップ'}
+                    </p>
+                    <p style={{ 
+                      margin: 0, 
+                      fontSize: '15px', 
+                      color: '#6b7280',
+                      marginBottom: '16px'
+                    }}>
+                      またはクリックしてファイルを選択
+                    </p>
+                    
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      marginBottom: '12px'
+                    }}>
+                      {[
+                        { ext: 'PDF', color: '#ef4444' },
+                        { ext: 'Word', color: '#2563eb' },
+                        { ext: 'Excel', color: '#16a34a' }
+                      ].map(({ ext, color }) => (
+                        <span
+                          key={ext}
+                          style={{
+                            backgroundColor: color,
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600
+                          }}
+                        >
+                          {ext}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    <p style={{ 
+                      fontSize: '13px', 
+                      color: '#9ca3af',
+                      margin: 0
+                    }}>最大ファイルサイズ: 10MB</p>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
