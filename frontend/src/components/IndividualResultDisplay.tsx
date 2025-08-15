@@ -8,6 +8,7 @@ interface IndividualResultDisplayProps {
   result: string;
   onReset: () => void;
   onGenerateMore?: (file: File) => void;
+  onGenerateNext?: (generationType: GenerationType) => void;
   uploadedFile?: File | null;
   sessionId?: string | null;
 }
@@ -18,6 +19,7 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
   result,
   onReset,
   onGenerateMore,
+  onGenerateNext,
   uploadedFile,
   sessionId
 }) => {
@@ -53,6 +55,24 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
   const handleGenerateMore = () => {
     if (onGenerateMore && uploadedFile) {
       onGenerateMore(uploadedFile);
+    }
+  };
+
+  const getAvailableGenerationTypes = (): { type: GenerationType; label: string; icon: string }[] => {
+    const allTypes = [
+      { type: 'functional-diagram' as GenerationType, label: '機能構成図', icon: '🔗' },
+      { type: 'external-interfaces' as GenerationType, label: '外部インターフェース要件', icon: '🔌' },
+      { type: 'performance' as GenerationType, label: '性能要件', icon: '⚡' },
+      { type: 'security' as GenerationType, label: 'セキュリティ要件', icon: '🔒' }
+    ];
+    
+    // 現在のタイプ以外を返す
+    return allTypes.filter(item => item.type !== generationType);
+  };
+
+  const handleGenerateNext = (nextType: GenerationType) => {
+    if (onGenerateNext) {
+      onGenerateNext(nextType);
     }
   };
 
@@ -265,6 +285,75 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
           </div>
         )}
       </div>
+
+      {/* 次の生成選択セクション */}
+      {sessionId && onGenerateNext && (
+        <div style={{
+          backgroundColor: '#fff',
+          border: '1px solid #e9ecef',
+          borderRadius: '12px',
+          padding: '24px',
+          marginTop: '24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{
+            margin: '0 0 16px 0',
+            fontSize: '18px',
+            color: '#333',
+            fontWeight: 600,
+            textAlign: 'center'
+          }}>🔄 同じドキュメントから他の要件も生成</h3>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+            marginTop: '16px'
+          }}>
+            {getAvailableGenerationTypes().map((item) => (
+              <button
+                key={item.type}
+                onClick={() => handleGenerateNext(item.type)}
+                style={{
+                  padding: '12px 16px',
+                  border: '2px solid #e9ecef',
+                  borderRadius: '8px',
+                  backgroundColor: '#fff',
+                  color: '#333',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#007bff';
+                  e.currentTarget.style.backgroundColor = '#f8f9fa';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#e9ecef';
+                  e.currentTarget.style.backgroundColor = '#fff';
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+          
+          <p style={{
+            margin: '16px 0 0 0',
+            fontSize: '12px',
+            color: '#666',
+            textAlign: 'center'
+          }}>
+            💡 既にアップロードされたドキュメントを使用するため、再アップロードは不要です
+          </p>
+        </div>
+      )}
 
       {/* フッター情報 */}
       <div style={{

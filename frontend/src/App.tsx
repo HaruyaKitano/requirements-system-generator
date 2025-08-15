@@ -153,6 +153,58 @@ const App: React.FC = () => {
     }));
   };
 
+  const handleGenerateNext = async (generationType: GenerationType) => {
+    if (!state.sessionId) return;
+
+    setState(prev => ({
+      ...prev,
+      isLoading: true,
+      error: null,
+      currentStep: 'processing',
+      generationType,
+    }));
+
+    try {
+      let result: string = '';
+      
+      switch (generationType) {
+        case 'functional-diagram':
+          const diagResponse = await ApiService.generateFunctionalDiagramFromSession(state.sessionId);
+          result = diagResponse.functional_diagram;
+          break;
+        case 'external-interfaces':
+          const extResponse = await ApiService.generateExternalInterfacesFromSession(state.sessionId);
+          result = extResponse.external_interfaces;
+          break;
+        case 'performance':
+          const perfResponse = await ApiService.generatePerformanceRequirementsFromSession(state.sessionId);
+          result = perfResponse.performance_requirements;
+          break;
+        case 'security':
+          const secResponse = await ApiService.generateSecurityRequirementsFromSession(state.sessionId);
+          result = secResponse.security_requirements;
+          break;
+      }
+      
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        individualResults: {
+          ...prev.individualResults,
+          [generationType.replace('-', '')]: result
+        },
+        currentStep: 'result',
+      }));
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : '予期しないエラーが発生しました',
+        currentStep: 'result',
+      }));
+    }
+  };
+
   const getIndividualResult = (generationType: GenerationType, results: any): string => {
     switch (generationType) {
       case 'functional-diagram':
@@ -279,6 +331,7 @@ const App: React.FC = () => {
                   result={getIndividualResult(state.generationType, state.individualResults)}
                   onReset={handleReset}
                   onGenerateMore={handleGenerateMore}
+                  onGenerateNext={handleGenerateNext}
                   uploadedFile={state.uploadedFile}
                   sessionId={state.sessionId}
                 />

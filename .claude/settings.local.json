@@ -1,9 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "mcp__serena__replace_regex"
+      "mcp__serena__replace_regex",
+      "Bash(python:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "defaultMode": "acceptEdits"
   }
 }
