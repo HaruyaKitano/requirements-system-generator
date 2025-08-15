@@ -35,6 +35,9 @@ export interface AppState {
     performanceRequirements?: string;
     securityRequirements?: string;
   };
+  progress: number;
+  currentProgressStep: string;
+  progressSteps: string[];
 }
 
 // ファイルアップロード用の型

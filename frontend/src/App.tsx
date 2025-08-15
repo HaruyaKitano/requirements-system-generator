@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import ResultDisplay from './components/ResultDisplay';
 import IndividualResultDisplay from './components/IndividualResultDisplay';
+import ProgressBar from './components/ProgressBar';
 import { AppState, GenerationType } from './types';
 import { ApiService, downloadAsFile } from './services/api';
 import { SystemRequirementsResponse } from './types';
@@ -17,7 +18,70 @@ const App: React.FC = () => {
     currentStep: 'upload',
     generationType: null,
     individualResults: {},
+    progress: 0,
+    currentProgressStep: '',
+    progressSteps: ['アップロード', 'テキスト抽出', 'AI分析', '生成完了']
   });
+
+  // 進捗更新関数
+  const updateProgress = (progress: number, step: string) => {
+    setState(prev => ({
+      ...prev,
+      progress,
+      currentProgressStep: step
+    }));
+  };
+
+  // 進捗をシミュレートする関数
+  const simulateProgress = async (generationType: GenerationType) => {
+    const steps = {
+      comprehensive: [
+        { progress: 15, step: 'ファイルをアップロード中...', delay: 500 },
+        { progress: 35, step: 'テキストを抽出中...', delay: 1000 },
+        { progress: 65, step: 'AI分析を実行中...', delay: 2000 },
+        { progress: 85, step: 'システム要件定義書を生成中...', delay: 2500 },
+        { progress: 100, step: '生成完了', delay: 500 }
+      ],
+      basic: [
+        { progress: 20, step: 'ファイルをアップロード中...', delay: 500 },
+        { progress: 40, step: 'テキストを抽出中...', delay: 800 },
+        { progress: 70, step: 'AI分析を実行中...', delay: 1500 },
+        { progress: 90, step: '基本要件定義書を生成中...', delay: 1000 },
+        { progress: 100, step: '生成完了', delay: 500 }
+      ],
+      'functional-diagram': [
+        { progress: 25, step: 'セッションからデータを取得中...', delay: 300 },
+        { progress: 55, step: 'システム構成を分析中...', delay: 1000 },
+        { progress: 85, step: '機能構成図を生成中...', delay: 1500 },
+        { progress: 100, step: '生成完了', delay: 300 }
+      ],
+      'external-interfaces': [
+        { progress: 25, step: 'セッションからデータを取得中...', delay: 300 },
+        { progress: 50, step: 'インターフェースを分析中...', delay: 1000 },
+        { progress: 80, step: '外部インターフェース要件を生成中...', delay: 1200 },
+        { progress: 100, step: '生成完了', delay: 300 }
+      ],
+      'performance': [
+        { progress: 25, step: 'セッションからデータを取得中...', delay: 300 },
+        { progress: 55, step: 'パフォーマンス要素を分析中...', delay: 1000 },
+        { progress: 85, step: '性能要件を生成中...', delay: 1000 },
+        { progress: 100, step: '生成完了', delay: 300 }
+      ],
+      'security': [
+        { progress: 25, step: 'セッションからデータを取得中...', delay: 300 },
+        { progress: 50, step: 'セキュリティ要素を分析中...', delay: 1000 },
+        { progress: 80, step: 'セキュリティ要件を生成中...', delay: 1200 },
+        { progress: 100, step: '生成完了', delay: 300 }
+      ]
+    };
+
+    const progressSteps = steps[generationType] || steps.comprehensive;
+
+    for (const { progress, step, delay } of progressSteps) {
+      updateProgress(progress, step);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  };
 
   const handleFileSelect = async (file: File, generationType: GenerationType = 'comprehensive') => {
     setState(prev => ({
@@ -27,9 +91,13 @@ const App: React.FC = () => {
       uploadedFile: file,
       generationType,
       currentStep: 'processing',
+      progress: 0,
+      currentProgressStep: '処理を開始しています...'
     }));
 
     try {
+      // 進捗シミュレーションを並行実行
+      const progressPromise = simulateProgress(generationType);
       if (generationType === 'comprehensive' || generationType === 'basic') {
         // 包括的・基本生成の場合
         let response: SystemRequirementsResponse;
@@ -39,6 +107,9 @@ const App: React.FC = () => {
           response = await ApiService.uploadAndGenerate(file);
         }
         
+        // 進捗完了を待ってから結果表示
+        await progressPromise;
+        
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -46,6 +117,8 @@ const App: React.FC = () => {
           generatedRequirements: response.generated_requirements,
           sessionId: response.session_id,
           currentStep: 'result',
+          progress: 100,
+          currentProgressStep: '生成完了'
         }));
       } else {
         // 個別生成の場合
@@ -95,6 +168,9 @@ const App: React.FC = () => {
           }
         }
         
+        // 進捗完了を待ってから結果表示
+        await progressPromise;
+        
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -104,6 +180,8 @@ const App: React.FC = () => {
             [generationType.replace('-', '')]: result
           },
           currentStep: 'result',
+          progress: 100,
+          currentProgressStep: '生成完了'
         }));
       }
     } catch (error) {
@@ -112,6 +190,8 @@ const App: React.FC = () => {
         isLoading: false,
         error: error instanceof Error ? error.message : '予期しないエラーが発生しました',
         currentStep: 'upload',
+        progress: 0,
+        currentProgressStep: ''
       }));
     }
   };
@@ -139,6 +219,9 @@ const App: React.FC = () => {
       currentStep: 'upload',
       generationType: null,
       individualResults: {},
+      progress: 0,
+      currentProgressStep: '',
+      progressSteps: ['アップロード', 'テキスト抽出', 'AI分析', '生成完了']
     });
   };
 
@@ -149,6 +232,8 @@ const App: React.FC = () => {
       currentStep: 'upload',
       isLoading: false,
       error: null,
+      progress: 0,
+      currentProgressStep: '',
       // セッションIDは保持して再利用可能にする
     }));
   };
@@ -162,9 +247,13 @@ const App: React.FC = () => {
       error: null,
       currentStep: 'processing',
       generationType,
+      progress: 0,
+      currentProgressStep: '処理を開始しています...'
     }));
 
     try {
+      // 進捗シミュレーションを並行実行
+      const progressPromise = simulateProgress(generationType);
       let result: string = '';
       
       switch (generationType) {
@@ -186,6 +275,9 @@ const App: React.FC = () => {
           break;
       }
       
+      // 進捗完了を待ってから結果表示
+      await progressPromise;
+      
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -194,13 +286,17 @@ const App: React.FC = () => {
           [generationType.replace('-', '')]: result
         },
         currentStep: 'result',
+        progress: 100,
+        currentProgressStep: '生成完了'
       }));
     } catch (error) {
       setState(prev => ({
         ...prev,
         isLoading: false,
         error: error instanceof Error ? error.message : '予期しないエラーが発生しました',
-        currentStep: 'result',
+        currentStep: 'upload',
+        progress: 0,
+        currentProgressStep: ''
       }));
     }
   };
@@ -403,93 +499,89 @@ const App: React.FC = () => {
               minHeight: '60vh'
             }}>
               <div style={{
-                backgroundColor: 'white',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
                 borderRadius: '24px',
                 padding: '48px',
                 textAlign: 'center',
                 boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                 border: '1px solid rgba(148, 163, 184, 0.1)',
-                maxWidth: '500px',
-                width: '100%'
+                maxWidth: '600px',
+                width: '100%',
+                position: 'relative',
+                overflow: 'hidden'
               }}>
                 <div style={{
-                  width: '80px',
-                  height: '80px',
-                  margin: '0 auto 24px',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    width: '100%',
-                    height: '100%',
-                    border: '4px solid #e5e7eb',
-                    borderTop: '4px solid #667eea',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }}></div>
-                  <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    fontSize: '24px'
-                  }}>🤖</div>
-                </div>
-                <h2 style={{
-                  margin: '0 0 16px 0',
-                  fontSize: '24px',
-                  fontWeight: 700,
-                  color: '#1f2937',
-                  letterSpacing: '-0.025em'
-                }}>AI処理中</h2>
-                <p style={{
-                  margin: '0 0 32px 0',
-                  fontSize: '16px',
-                  color: '#6b7280',
-                  lineHeight: 1.6
-                }}>ファイルを解析して包括的なシステム要件定義書を生成しています</p>
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23667eea" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="3"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                  backgroundSize: '60px 60px'
+                }}></div>
+                
                 <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  textAlign: 'left'
+                  position: 'relative',
+                  marginBottom: '32px'
                 }}>
                   <div style={{
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    backgroundColor: '#f0fdf4',
-                    borderRadius: '12px',
-                    border: '1px solid #bbf7d0'
+                    gap: '16px',
+                    marginBottom: '16px'
                   }}>
-                    <span style={{ fontSize: '16px', color: '#16a34a' }}>✓</span>
-                    <span style={{ fontSize: '14px', color: '#166534', fontWeight: 500 }}>ファイルアップロード完了</span>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '28px',
+                      color: 'white',
+                      position: 'relative',
+                      boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
+                    }}>
+                      🤖
+                      <div style={{
+                        position: 'absolute',
+                        top: '-2px',
+                        right: '-2px',
+                        width: '12px',
+                        height: '12px',
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        borderRadius: '50%',
+                        border: '2px solid white',
+                        animation: 'pulse 2s infinite'
+                      }}></div>
+                    </div>
+                    <h2 style={{
+                      margin: 0,
+                      fontSize: '28px',
+                      fontWeight: 700,
+                      color: '#1f2937',
+                      letterSpacing: '-0.025em'
+                    }}>AI処理中</h2>
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    backgroundColor: '#fef3c7',
-                    borderRadius: '12px',
-                    border: '1px solid #fde68a'
+                  <p style={{
+                    margin: '0 auto',
+                    fontSize: '16px',
+                    color: '#6b7280',
+                    lineHeight: 1.6,
+                    maxWidth: '400px'
                   }}>
-                    <span style={{ fontSize: '16px' }}>⏳</span>
-                    <span style={{ fontSize: '14px', color: '#92400e', fontWeight: 500 }}>テキスト抽出・AI分析中...</span>
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '12px',
-                    border: '1px solid #e5e7eb'
-                  }}>
-                    <span style={{ fontSize: '16px', opacity: 0.5 }}>🤖</span>
-                    <span style={{ fontSize: '14px', color: '#6b7280', fontWeight: 500 }}>システム要件定義書生成中...</span>
-                  </div>
+                    高度なAI技術により、アップロードされた文書から包括的なシステム要件定義書を生成しています
+                  </p>
                 </div>
+
+                {/* ProgressBar を統合 */}
+                <ProgressBar
+                  progress={state.progress}
+                  currentStep={state.currentProgressStep}
+                  steps={state.progressSteps}
+                  isAnimated={true}
+                />
               </div>
             </div>
           )}
