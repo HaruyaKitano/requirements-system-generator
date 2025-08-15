@@ -317,308 +317,224 @@ const App: React.FC = () => {
   };
 
   return (
-    <div style={{
+    <div style={{ 
       minHeight: '100vh',
       display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: 'var(--color-background)',
-      fontFamily: 'var(--font-sans)'
+      flexDirection: 'column'
     }}>
-      {/* Render-style Header */}
-      <header style={{
-        background: 'var(--color-surface)',
-        borderBottom: '1px solid var(--color-border)',
+      {/* ダークモードヘッダー */}
+      <div style={{
+        background: 'rgba(30, 41, 59, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(148, 163, 184, 0.2)',
+        padding: '20px 0',
         position: 'sticky',
         top: 0,
-        zIndex: 50
+        zIndex: 1000,
+        boxShadow: '0 2px 20px rgba(0, 0, 0, 0.3)'
       }}>
-        <div className="render-container">
+        <div style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+          padding: '0 24px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#f8fafc',
+            margin: 0,
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>
+            🤖 システム要件定義書ジェネレーター
+          </h1>
+        </div>
+      </div>
+
+      <div style={{ 
+        flex: 1,
+        padding: '40px 20px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        width: '100%'
+      }}>
+        {state.error && (
           <div style={{
+            padding: '16px 20px',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            border: '1px solid rgba(220, 38, 38, 0.3)',
+            borderRadius: '12px',
+            color: '#fca5a5',
+            marginBottom: '24px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            height: '64px'
+            gap: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
           }}>
             <div style={{
+              width: '20px',
+              height: '20px',
+              backgroundColor: '#ef4444',
+              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
-              gap: 'var(--space-3)'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                background: 'var(--color-purple-600)',
-                borderRadius: 'var(--radius-md)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px',
-                color: 'white'
-              }}>🤖</div>
-              <h1 className="render-heading-3" style={{ fontWeight: 600 }}>
-                システム要件定義書ジェネレーター
-              </h1>
-            </div>
-            
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-4)'
-            }}>
-              <div className="render-badge render-badge-purple">
-                <span>AI駆動</span>
-              </div>
-              <div className="render-badge render-badge-success">
-                <span>Beta</span>
-              </div>
-            </div>
+              justifyContent: 'center',
+              fontSize: '12px',
+              color: 'white',
+              fontWeight: 'bold',
+              flexShrink: 0
+            }}>!</div>
+            <span style={{ flex: 1, fontWeight: 500 }}>{state.error}</span>
+            <button 
+              onClick={() => setState(prev => ({ ...prev, error: null }))}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#fca5a5',
+                cursor: 'pointer',
+                padding: '4px',
+                fontSize: '16px'
+              }}
+            >✕</button>
           </div>
-        </div>
-      </header>
+        )}
 
-      {/* Hero Section - Render Style */}
-      <section style={{
-        background: 'var(--color-background-secondary)',
-        borderBottom: '1px solid var(--color-border)',
-        padding: 'var(--space-16) 0'
-      }}>
-        <div className="render-container">
+        {state.currentStep === 'upload' && (
+          <div className="upload-section">
+            <FileUpload
+              onFileSelect={handleFileSelect}
+              isLoading={state.isLoading}
+              sessionId={state.sessionId}
+            />
+          </div>
+        )}
+
+        {state.currentStep === 'processing' && (
           <div style={{
-            textAlign: 'center',
-            maxWidth: '800px',
-            margin: '0 auto'
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '60vh'
           }}>
-            <h2 className="render-heading-1" style={{
-              marginBottom: 'var(--space-6)',
-              background: 'linear-gradient(135deg, var(--color-purple-600) 0%, var(--color-purple-800) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
-            }}>
-              AI駆動の要件定義書生成
-            </h2>
-            
-            <p className="render-text-body" style={{
-              fontSize: 'var(--text-lg)',
-              marginBottom: 'var(--space-10)',
+            <div style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+              borderRadius: '24px',
+              padding: '48px',
+              textAlign: 'center',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              border: '1px solid rgba(148, 163, 184, 0.1)',
               maxWidth: '600px',
-              margin: '0 auto var(--space-10) auto'
-            }}>
-              アップロードした文書から包括的なシステム要件定義書を自動生成。<br/>
-              機能構成図、外部インターフェース、性能・セキュリティ要件まで一括対応。
-            </p>
-
-            {/* Feature Pills */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              gap: 'var(--space-3)',
-              marginBottom: 'var(--space-8)'
-            }}>
-              {[
-                { icon: '🔗', label: '機能構成図' },
-                { icon: '🔌', label: '外部IF要件' },
-                { icon: '⚡', label: '性能要件' },
-                { icon: '🔒', label: 'セキュリティ要件' }
-              ].map((feature, index) => (
-                <div key={index} className="render-badge" style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  padding: 'var(--space-2) var(--space-4)',
-                  fontSize: 'var(--text-sm)'
-                }}>
-                  <span>{feature.icon}</span>
-                  <span>{feature.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <main style={{
-        flex: 1,
-        padding: 'var(--space-12) 0',
-        position: 'relative'
-      }}>
-        <div className="render-container">
-          {state.error && (
-            <div className="render-card" style={{
-              padding: 'var(--space-4)',
-              marginBottom: 'var(--space-8)',
-              border: '1px solid var(--color-red-500)',
-              background: 'rgba(207, 34, 46, 0.05)',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 'var(--space-3)'
+              width: '100%',
+              position: 'relative',
+              overflow: 'hidden'
             }}>
               <div style={{
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: 'var(--color-red-500)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                color: 'white',
-                flexShrink: 0,
-                marginTop: '2px'
-              }}>!</div>
-              <div style={{ flex: 1 }}>
-                <p className="render-text-body" style={{
-                  margin: 0,
-                  color: 'var(--color-red-500)',
-                  fontWeight: 500
-                }}>{state.error}</p>
-              </div>
-              <button 
-                className="render-button render-button-ghost"
-                onClick={() => setState(prev => ({ ...prev, error: null }))}
-                style={{
-                  padding: 'var(--space-1) var(--space-2)',
-                  fontSize: 'var(--text-xs)',
-                  flexShrink: 0
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          )}
-
-          {state.currentStep === 'upload' && (
-            <div className="upload-section">
-              <FileUpload
-                onFileSelect={handleFileSelect}
-                isLoading={state.isLoading}
-                sessionId={state.sessionId}
-              />
-            </div>
-          )}
-
-          {state.currentStep === 'processing' && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '60vh'
-            }}>
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23667eea" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="3"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                backgroundSize: '60px 60px'
+              }}></div>
+              
               <div style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                borderRadius: '24px',
-                padding: '48px',
-                textAlign: 'center',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
-                maxWidth: '600px',
-                width: '100%',
                 position: 'relative',
-                overflow: 'hidden'
+                marginBottom: '32px'
               }}>
                 <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23667eea" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="3"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                  backgroundSize: '60px 60px'
-                }}></div>
-                
-                <div style={{
-                  position: 'relative',
-                  marginBottom: '32px'
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  marginBottom: '16px'
                 }}>
                   <div style={{
-                    display: 'inline-flex',
+                    width: '64px',
+                    height: '64px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '20px',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: '16px',
-                    marginBottom: '16px'
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    color: 'white',
+                    position: 'relative',
+                    boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
                   }}>
+                    🤖
                     <div style={{
-                      width: '64px',
-                      height: '64px',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      borderRadius: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '28px',
-                      color: 'white',
-                      position: 'relative',
-                      boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
-                    }}>
-                      🤖
-                      <div style={{
-                        position: 'absolute',
-                        top: '-2px',
-                        right: '-2px',
-                        width: '12px',
-                        height: '12px',
-                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        borderRadius: '50%',
-                        border: '2px solid white',
-                        animation: 'pulse 2s infinite'
-                      }}></div>
-                    </div>
-                    <h2 style={{
-                      margin: 0,
-                      fontSize: '28px',
-                      fontWeight: 700,
-                      color: '#1f2937',
-                      letterSpacing: '-0.025em'
-                    }}>AI処理中</h2>
+                      position: 'absolute',
+                      top: '-2px',
+                      right: '-2px',
+                      width: '12px',
+                      height: '12px',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      borderRadius: '50%',
+                      border: '2px solid white',
+                      animation: 'pulse 2s infinite'
+                    }}></div>
                   </div>
-                  <p style={{
-                    margin: '0 auto',
-                    fontSize: '16px',
-                    color: '#6b7280',
-                    lineHeight: 1.6,
-                    maxWidth: '400px'
-                  }}>
-                    高度なAI技術により、アップロードされた文書から包括的なシステム要件定義書を生成しています
-                  </p>
+                  <h2 style={{
+                    margin: 0,
+                    fontSize: '28px',
+                    fontWeight: 700,
+                    color: '#1f2937',
+                    letterSpacing: '-0.025em'
+                  }}>AI処理中</h2>
                 </div>
-
-                {/* ProgressBar を統合 */}
-                <ProgressBar
-                  progress={state.progress}
-                  currentStep={state.currentProgressStep}
-                  steps={state.progressSteps}
-                  isAnimated={true}
-                />
+                <p style={{
+                  margin: '0 auto',
+                  fontSize: '16px',
+                  color: '#6b7280',
+                  lineHeight: 1.6,
+                  maxWidth: '400px'
+                }}>
+                  高度なAI技術により、アップロードされた文書から包括的なシステム要件定義書を生成しています
+                </p>
               </div>
-            </div>
-          )}
 
-          {state.currentStep === 'result' && state.uploadedFile && (
-            <div className="result-section">
-              {(state.generationType === 'comprehensive' || state.generationType === 'basic') && 
-               state.extractedText && state.generatedRequirements ? (
-                <ResultDisplay
-                  filename={state.uploadedFile.name}
-                  extractedText={state.extractedText}
-                  generatedRequirements={state.generatedRequirements}
-                  onDownload={handleDownload}
-                  onReset={handleReset}
-                />
-              ) : state.generationType && (
-                <IndividualResultDisplay
-                  filename={state.uploadedFile.name}
-                  generationType={state.generationType}
-                  result={getIndividualResult(state.generationType, state.individualResults)}
-                  onReset={handleReset}
-                  onGenerateMore={handleGenerateMore}
-                  onGenerateNext={handleGenerateNext}
-                  uploadedFile={state.uploadedFile}
-                  sessionId={state.sessionId}
-                />
-              )}
+              {/* ProgressBar を統合 */}
+              <ProgressBar
+                progress={state.progress}
+                currentStep={state.currentProgressStep}
+                steps={state.progressSteps}
+                isAnimated={true}
+              />
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        )}
+
+        {state.currentStep === 'result' && state.uploadedFile && (
+          <div className="result-section">
+            {(state.generationType === 'comprehensive' || state.generationType === 'basic') && 
+             state.extractedText && state.generatedRequirements ? (
+              <ResultDisplay
+                filename={state.uploadedFile.name}
+                extractedText={state.extractedText}
+                generatedRequirements={state.generatedRequirements}
+                onDownload={handleDownload}
+                onReset={handleReset}
+              />
+            ) : state.generationType && (
+              <IndividualResultDisplay
+                filename={state.uploadedFile.name}
+                generationType={state.generationType}
+                result={getIndividualResult(state.generationType, state.individualResults)}
+                onReset={handleReset}
+                onGenerateMore={handleGenerateMore}
+                onGenerateNext={handleGenerateNext}
+                uploadedFile={state.uploadedFile}
+                sessionId={state.sessionId}
+              />
+            )}
+          </div>
+        )}
+      </div>
 
       <footer style={{
         background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
@@ -662,7 +578,6 @@ const App: React.FC = () => {
           }}>&copy; 2024 All rights reserved. Powered by AI technology.</p>
         </div>
       </footer>
-
     </div>
   );
 };

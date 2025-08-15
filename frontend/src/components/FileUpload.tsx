@@ -159,44 +159,66 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
       margin: '0 auto'
     }}>
       {sessionId && (
-        <div className="render-card" style={{
-          padding: 'var(--space-6)',
-          marginBottom: 'var(--space-8)',
+        <div style={{
+          padding: '24px',
+          marginBottom: '32px',
           textAlign: 'center',
-          background: 'rgba(124, 58, 237, 0.05)',
-          border: '1px solid rgba(124, 58, 237, 0.2)'
+          background: 'rgba(59, 130, 246, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'var(--space-3)',
-            marginBottom: 'var(--space-4)'
+            gap: '12px',
+            marginBottom: '16px'
           }}>
             <div style={{
               width: '32px',
               height: '32px',
-              background: 'var(--color-purple-600)',
-              borderRadius: 'var(--radius-md)',
+              background: '#3b82f6',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '16px',
               color: 'white'
             }}>💾</div>
-            <h3 className="render-heading-3" style={{ 
-              color: 'var(--color-purple-700)'
+            <h3 style={{ 
+              color: '#60a5fa',
+              fontSize: '20px',
+              margin: 0,
+              fontWeight: 600
             }}>ドキュメント保存済み</h3>
           </div>
-          <p className="render-text-body" style={{
-            marginBottom: 'var(--space-5)',
-            color: 'var(--color-purple-600)'
+          <p style={{
+            marginBottom: '20px',
+            color: '#93c5fd',
+            fontSize: '16px',
+            margin: '0 0 20px 0',
+            lineHeight: 1.5
           }}>
             既にアップロードされたドキュメントから<br />追加の要件を生成できます
           </p>
           <button
-            className="render-button render-button-primary"
             onClick={handleSessionBasedGeneration}
+            style={{
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+            }}
           >
             <span>✨</span>
             <span>追加要件を生成</span>
@@ -206,20 +228,22 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
       
       <div
         {...getRootProps()}
-        className="render-card"
         style={{
           border: isDragActive 
-            ? `2px dashed var(--color-purple-500)` 
-            : `2px dashed var(--color-border-strong)`,
-          padding: 'var(--space-12) var(--space-8)',
+            ? `2px dashed #3b82f6` 
+            : `2px dashed #475569`,
+          padding: '48px 32px',
           textAlign: 'center',
           cursor: isLoading ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s ease',
           background: isDragActive 
-            ? 'rgba(124, 58, 237, 0.05)' 
-            : 'var(--color-surface)',
+            ? 'rgba(59, 130, 246, 0.1)' 
+            : 'rgba(30, 41, 59, 0.6)',
           opacity: isLoading ? 0.6 : 1,
-          transform: isDragActive ? 'scale(1.01)' : 'scale(1)'
+          transform: isDragActive ? 'scale(1.01)' : 'scale(1)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          backdropFilter: 'blur(10px)'
         }}
       >
         <input {...getInputProps()} />
@@ -277,8 +301,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
                 width: '80px',
                 height: '80px',
                 background: isDragActive 
-                  ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                  : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                  ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'
+                  : 'linear-gradient(135deg, #374151 0%, #4b5563 100%)',
                 borderRadius: '20px',
                 display: 'flex',
                 alignItems: 'center',
@@ -287,8 +311,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
                 transform: isDragActive ? 'scale(1.1)' : 'scale(1)',
                 transition: 'all 0.3s ease',
                 boxShadow: isDragActive 
-                  ? '0 10px 20px rgba(102, 126, 234, 0.3)'
-                  : '0 4px 10px rgba(0, 0, 0, 0.1)'
+                  ? '0 10px 20px rgba(59, 130, 246, 0.3)'
+                  : '0 4px 10px rgba(0, 0, 0, 0.3)'
               }}>
                 {isDragActive ? '🎯' : '📄'}
               </div>
@@ -299,14 +323,14 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
                     <p style={{ 
                       margin: 0, 
                       fontSize: '20px', 
-                      color: '#1f2937',
+                      color: '#f8fafc',
                       fontWeight: 700,
                       marginBottom: '8px'
                     }}>ここにドロップ！</p>
                     <p style={{ 
                       margin: 0, 
                       fontSize: '15px', 
-                      color: '#6b7280'
+                      color: '#cbd5e1'
                     }}>ファイルを離して、アップロードを開始してください</p>
                   </div>
                 ) : (
@@ -314,7 +338,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
                     <p style={{ 
                       margin: 0, 
                       fontSize: '18px', 
-                      color: '#1f2937',
+                      color: '#f8fafc',
                       fontWeight: 600,
                       marginBottom: '8px'
                     }}>
@@ -323,7 +347,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
                     <p style={{ 
                       margin: 0, 
                       fontSize: '15px', 
-                      color: '#6b7280',
+                      color: '#cbd5e1',
                       marginBottom: '16px'
                     }}>
                       またはクリックしてファイルを選択
