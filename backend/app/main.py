@@ -1,14 +1,15 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
-from typing import List
+from typing import List, Optional
 import os
 from dotenv import load_dotenv
 
 from .file_processor import FileProcessor
 from .openai_client import OpenAIClient
 from .models import SystemRequirementsResponse
+from .session_manager import session_manager
 
 load_dotenv()
 
@@ -67,15 +68,19 @@ async def upload_and_generate_requirements(file: UploadFile = File(...)):
                 detail="No text could be extracted from the file"
             )
 
+        # セッションを作成してテキストを保存
+        session_id = session_manager.create_session(extracted_text, file.filename)
+        
         # OpenAI APIでシステム要件定義書生成
         system_requirements = await openai_client.generate_system_requirements(extracted_text)
         
-        return SystemRequirementsResponse(
-            original_filename=file.filename,
-            extracted_text=extracted_text,
-            generated_requirements=system_requirements,
-            status="success"
-        )
+        return {
+            "original_filename": file.filename,
+            "extracted_text": extracted_text,
+            "generated_requirements": system_requirements,
+            "session_id": session_id,
+            "status": "success"
+        }
 
     except HTTPException:
         raise
@@ -130,6 +135,9 @@ async def generate_comprehensive_requirements(file: UploadFile = File(...)):
                 detail="No text could be extracted from the file"
             )
 
+        # セッションを作成してテキストを保存
+        session_id = session_manager.create_session(extracted_text, file.filename)
+        
         # 包括的なシステム要件定義書生成
         system_requirements = await openai_client.generate_system_requirements(extracted_text)
         
@@ -137,6 +145,7 @@ async def generate_comprehensive_requirements(file: UploadFile = File(...)):
             "original_filename": file.filename,
             "extracted_text": extracted_text,
             "generated_requirements": system_requirements,
+            "session_id": session_id,
             "status": "success"
         }
 
@@ -228,6 +237,127 @@ async def generate_security_requirements(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating security requirements: {str(e)}")
+
+# セッションベースの生成エンドポイント
+@app.post("/generate-from-session/functional-diagram")
+async def generate_functional_diagram_from_session(session_id: str = Form(...)):
+    """
+    セッションIDを使用して機能構成図を生成
+    """
+    try:
+        session_data = session_manager.get_session_data(session_id)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="Session not found or expired")
+        
+        functional_diagram = await openai_client.generate_functional_diagram(session_data['extracted_text'])
+        
+        return {
+            "original_filename": session_data['filename'],
+            "functional_diagram": functional_diagram,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating functional diagram: {str(e)}")
+
+@app.post("/generate-from-session/external-interfaces")
+async def generate_external_interfaces_from_session(session_id: str = Form(...)):
+    """
+    セッションIDを使用して外部インターフェース要件を生成
+    """
+    try:
+        session_data = session_manager.get_session_data(session_id)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="Session not found or expired")
+        
+        external_interfaces = await openai_client.generate_external_interfaces(session_data['extracted_text'])
+        
+        return {
+            "original_filename": session_data['filename'],
+            "external_interfaces": external_interfaces,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating external interfaces: {str(e)}")
+
+@app.post("/generate-from-session/performance-requirements")
+async def generate_performance_requirements_from_session(session_id: str = Form(...)):
+    """
+    セッションIDを使用して性能要件を生成
+    """
+    try:
+        session_data = session_manager.get_session_data(session_id)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="Session not found or expired")
+        
+        performance_requirements = await openai_client.generate_performance_requirements(session_data['extracted_text'])
+        
+        return {
+            "original_filename": session_data['filename'],
+            "performance_requirements": performance_requirements,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating performance requirements: {str(e)}")
+
+@app.post("/generate-from-session/security-requirements")
+async def generate_security_requirements_from_session(session_id: str = Form(...)):
+    """
+    セッションIDを使用してセキュリティ要件を生成
+    """
+    try:
+        session_data = session_manager.get_session_data(session_id)
+        if not session_data:
+            raise HTTPException(status_code=404, detail="Session not found or expired")
+        
+        security_requirements = await openai_client.generate_security_requirements(session_data['extracted_text'])
+        
+        return {
+            "original_filename": session_data['filename'],
+            "security_requirements": security_requirements,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating security requirements: {str(e)}")
+
+@app.get("/session/{session_id}")
+async def get_session_info(session_id: str):
+    """
+    セッション情報を取得
+    """
+    session_data = session_manager.get_session_data(session_id)
+    if not session_data:
+        raise HTTPException(status_code=404, detail="Session not found or expired")
+    
+    return {
+        "session_id": session_id,
+        "filename": session_data['filename'],
+        "created_at": session_data['created_at'].isoformat(),
+        "last_accessed": session_data['last_accessed'].isoformat(),
+        "text_length": len(session_data['extracted_text'])
+    }
+
+@app.delete("/session/{session_id}")
+async def delete_session(session_id: str):
+    """
+    セッションを削除
+    """
+    success = session_manager.delete_session(session_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    return {"message": "Session deleted successfully"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)

@@ -159,6 +159,82 @@ export class ApiService {
   }
 
   /**
+   * セッションIDを使用して機能構成図を生成
+   */
+  static async generateFunctionalDiagramFromSession(sessionId: string): Promise<{ original_filename: string; functional_diagram: string; status: string }> {
+    const formData = new FormData();
+    formData.append('session_id', sessionId);
+
+    const response = await apiClient.post(
+      '/generate-from-session/functional-diagram',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * セッションIDを使用して外部インターフェース要件を生成
+   */
+  static async generateExternalInterfacesFromSession(sessionId: string): Promise<{ original_filename: string; external_interfaces: string; status: string }> {
+    const formData = new FormData();
+    formData.append('session_id', sessionId);
+
+    const response = await apiClient.post(
+      '/generate-from-session/external-interfaces',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * セッションIDを使用して性能要件を生成
+   */
+  static async generatePerformanceRequirementsFromSession(sessionId: string): Promise<{ original_filename: string; performance_requirements: string; status: string }> {
+    const formData = new FormData();
+    formData.append('session_id', sessionId);
+
+    const response = await apiClient.post(
+      '/generate-from-session/performance-requirements',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * セッションIDを使用してセキュリティ要件を生成
+   */
+  static async generateSecurityRequirementsFromSession(sessionId: string): Promise<{ original_filename: string; security_requirements: string; status: string }> {
+    const formData = new FormData();
+    formData.append('session_id', sessionId);
+
+    const response = await apiClient.post(
+      '/generate-from-session/security-requirements',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * セッション情報を取得
+   */
+  static async getSessionInfo(sessionId: string): Promise<{ session_id: string; filename: string; created_at: string; last_accessed: string; text_length: number }> {
+    const response = await apiClient.get(`/session/${sessionId}`);
+    return response.data;
+  }
+
+  /**
+   * セッションを削除
+   */
+  static async deleteSession(sessionId: string): Promise<{ message: string }> {
+    const response = await apiClient.delete(`/session/${sessionId}`);
+    return response.data;
+  }
+
+  /**
    * ヘルスチェック
    */
   static async healthCheck(): Promise<{ status: string }> {

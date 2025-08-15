@@ -13,6 +13,7 @@ const App: React.FC = () => {
     uploadedFile: null,
     extractedText: null,
     generatedRequirements: null,
+    sessionId: null,
     currentStep: 'upload',
     generationType: null,
     individualResults: {},
@@ -43,34 +44,61 @@ const App: React.FC = () => {
           isLoading: false,
           extractedText: response.extracted_text,
           generatedRequirements: response.generated_requirements,
+          sessionId: response.session_id,
           currentStep: 'result',
         }));
       } else {
         // 個別生成の場合
         let result: string = '';
+        let sessionId: string = '';
         
-        switch (generationType) {
-          case 'functional-diagram':
-            const diagResponse = await ApiService.generateFunctionalDiagram(file);
-            result = diagResponse.functional_diagram;
-            break;
-          case 'external-interfaces':
-            const extResponse = await ApiService.generateExternalInterfaces(file);
-            result = extResponse.external_interfaces;
-            break;
-          case 'performance':
-            const perfResponse = await ApiService.generatePerformanceRequirements(file);
-            result = perfResponse.performance_requirements;
-            break;
-          case 'security':
-            const secResponse = await ApiService.generateSecurityRequirements(file);
-            result = secResponse.security_requirements;
-            break;
+        // セッションIDがある場合はセッションベースの生成を使用
+        if (state.sessionId) {
+          switch (generationType) {
+            case 'functional-diagram':
+              const diagResponse = await ApiService.generateFunctionalDiagramFromSession(state.sessionId);
+              result = diagResponse.functional_diagram;
+              break;
+            case 'external-interfaces':
+              const extResponse = await ApiService.generateExternalInterfacesFromSession(state.sessionId);
+              result = extResponse.external_interfaces;
+              break;
+            case 'performance':
+              const perfResponse = await ApiService.generatePerformanceRequirementsFromSession(state.sessionId);
+              result = perfResponse.performance_requirements;
+              break;
+            case 'security':
+              const secResponse = await ApiService.generateSecurityRequirementsFromSession(state.sessionId);
+              result = secResponse.security_requirements;
+              break;
+          }
+          sessionId = state.sessionId;
+        } else {
+          // 新しいファイルアップロードの場合
+          switch (generationType) {
+            case 'functional-diagram':
+              const diagResponse = await ApiService.generateFunctionalDiagram(file);
+              result = diagResponse.functional_diagram;
+              break;
+            case 'external-interfaces':
+              const extResponse = await ApiService.generateExternalInterfaces(file);
+              result = extResponse.external_interfaces;
+              break;
+            case 'performance':
+              const perfResponse = await ApiService.generatePerformanceRequirements(file);
+              result = perfResponse.performance_requirements;
+              break;
+            case 'security':
+              const secResponse = await ApiService.generateSecurityRequirements(file);
+              result = secResponse.security_requirements;
+              break;
+          }
         }
         
         setState(prev => ({
           ...prev,
           isLoading: false,
+          sessionId: sessionId || prev.sessionId,
           individualResults: {
             ...prev.individualResults,
             [generationType.replace('-', '')]: result
@@ -96,12 +124,18 @@ const App: React.FC = () => {
   };
 
   const handleReset = () => {
+    // セッションがある場合は削除
+    if (state.sessionId) {
+      ApiService.deleteSession(state.sessionId).catch(console.error);
+    }
+    
     setState({
       isLoading: false,
       error: null,
       uploadedFile: null,
       extractedText: null,
       generatedRequirements: null,
+      sessionId: null,
       currentStep: 'upload',
       generationType: null,
       individualResults: {},
@@ -109,11 +143,13 @@ const App: React.FC = () => {
   };
 
   const handleGenerateMore = (file: File) => {
+    // セッションがある場合は新たな生成に移行
     setState(prev => ({
       ...prev,
       currentStep: 'upload',
       isLoading: false,
       error: null,
+      // セッションIDは保持して再利用可能にする
     }));
   };
 
@@ -205,6 +241,7 @@ const App: React.FC = () => {
               <FileUpload
                 onFileSelect={handleFileSelect}
                 isLoading={state.isLoading}
+                sessionId={state.sessionId}
               />
             </div>
           )}
@@ -243,6 +280,7 @@ const App: React.FC = () => {
                   onReset={handleReset}
                   onGenerateMore={handleGenerateMore}
                   uploadedFile={state.uploadedFile}
+                  sessionId={state.sessionId}
                 />
               )}
             </div>

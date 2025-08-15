@@ -4,7 +4,7 @@ import { FileUploadProps, GenerationType } from '../types';
 import { validateFile } from '../services/api';
 import GenerationTypeSelector from './GenerationTypeSelector';
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessionId }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedType, setSelectedType] = useState<GenerationType>('comprehensive');
   const [showTypeSelector, setShowTypeSelector] = useState(false);
@@ -23,10 +23,22 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
       setShowTypeSelector(true);
     }
   }, []);
+  
+  // セッションがある場合、ファイルアップロードなしで直接生成選択画面へ
+  const handleSessionBasedGeneration = () => {
+    if (sessionId) {
+      setShowTypeSelector(true);
+    }
+  };
 
   const handleFileSelectClick = () => {
-    if (selectedFile) {
-      onFileSelect(selectedFile, selectedType);
+    // セッションがある場合はファイルなしで生成（個別生成のみ）
+    if (sessionId && selectedType !== 'comprehensive' && selectedType !== 'basic') {
+      onFileSelect(new File([], ''), selectedType);
+      setSelectedFile(null);
+      setShowTypeSelector(false);
+    } else if (selectedFile || sessionId) {
+      onFileSelect(selectedFile || new File([], ''), selectedType);
       setSelectedFile(null);
       setShowTypeSelector(false);
     }
@@ -146,6 +158,50 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
       maxWidth: '600px',
       margin: '0 auto'
     }}>
+      {sessionId && (
+        <div style={{
+          backgroundColor: '#e7f3ff',
+          border: '1px solid #b3d9ff',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            marginBottom: '8px'
+          }}>
+            <span style={{ fontSize: '20px' }}>💾</span>
+            <span style={{ fontWeight: 600, color: '#0066cc' }}>アップロード済みドキュメント</span>
+          </div>
+          <p style={{
+            margin: '0 0 12px 0',
+            fontSize: '14px',
+            color: '#0066cc'
+          }}>
+            既にアップロードされたドキュメントから追加の要件を生成できます
+          </p>
+          <button
+            onClick={handleSessionBasedGeneration}
+            style={{
+              padding: '8px 20px',
+              border: 'none',
+              borderRadius: '6px',
+              backgroundColor: '#0066cc',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 500
+            }}
+          >
+            追加要件を生成
+          </button>
+        </div>
+      )}
+      
       <div
         {...getRootProps()}
         style={{
@@ -194,7 +250,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
                 <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>ファイルをここにドロップしてください</p>
               ) : (
                 <div>
-                  <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>要件定義書をドラッグ&ドロップするか、クリックしてファイルを選択</p>
+                  <p style={{ margin: 0, fontSize: '16px', color: '#333' }}>
+                    {sessionId ? '新しい要件定義書をアップロード' : '要件定義書をドラッグ&ドロップするか、クリックしてファイルを選択'}
+                  </p>
                   <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>対応形式: PDF, Word (.docx, .doc), Excel (.xlsx, .xls)</p>
                   <p style={{ fontSize: '12px', color: '#999', marginTop: '4px' }}>最大ファイルサイズ: 10MB</p>
                 </div>

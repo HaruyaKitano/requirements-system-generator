@@ -9,6 +9,7 @@ interface IndividualResultDisplayProps {
   onReset: () => void;
   onGenerateMore?: (file: File) => void;
   uploadedFile?: File | null;
+  sessionId?: string | null;
 }
 
 const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
@@ -17,7 +18,8 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
   result,
   onReset,
   onGenerateMore,
-  uploadedFile
+  uploadedFile,
+  sessionId
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -132,7 +134,7 @@ const IndividualResultDisplay: React.FC<IndividualResultDisplayProps> = ({
               📥 ダウンロード
             </button>
             
-            {onGenerateMore && uploadedFile && (
+            {onGenerateMore && (sessionId || uploadedFile) && (
               <button
                 onClick={handleGenerateMore}
                 style={{

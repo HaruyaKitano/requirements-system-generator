@@ -4,6 +4,7 @@ export interface SystemRequirementsResponse {
   original_filename: string;
   extracted_text: string;
   generated_requirements: string;
+  session_id: string;
   status: string;
 }
 
@@ -25,6 +26,7 @@ export interface AppState {
   uploadedFile: File | null;
   extractedText: string | null;
   generatedRequirements: string | null;
+  sessionId: string | null;
   currentStep: 'upload' | 'processing' | 'result';
   generationType: GenerationType | null;
   individualResults: {
@@ -39,6 +41,7 @@ export interface AppState {
 export interface FileUploadProps {
   onFileSelect: (file: File, generationType?: GenerationType) => void;
   isLoading: boolean;
+  sessionId?: string | null;
 }
 
 // 生成タイプの型
