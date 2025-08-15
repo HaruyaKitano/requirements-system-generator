@@ -1,9 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FileUploadProps } from '../types';
+import { FileUploadProps, GenerationType } from '../types';
 import { validateFile } from '../services/api';
+import GenerationTypeSelector from './GenerationTypeSelector';
 
 const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedType, setSelectedType] = useState<GenerationType>('comprehensive');
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
@@ -14,9 +19,27 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
         return;
       }
       
-      onFileSelect(file);
+      setSelectedFile(file);
+      setShowTypeSelector(true);
     }
-  }, [onFileSelect]);
+  }, []);
+
+  const handleFileSelectClick = () => {
+    if (selectedFile) {
+      onFileSelect(selectedFile, selectedType);
+      setSelectedFile(null);
+      setShowTypeSelector(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setSelectedFile(null);
+    setShowTypeSelector(false);
+  };
+
+  const handleTypeSelect = (type: GenerationType) => {
+    setSelectedType(type);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -30,6 +53,92 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
     multiple: false,
     disabled: isLoading,
   });
+
+  if (showTypeSelector && selectedFile) {
+    return (
+      <div style={{
+        width: '100%',
+        maxWidth: '900px',
+        margin: '0 auto'
+      }}>
+        <div style={{
+          backgroundColor: '#f8f9fa',
+          border: '1px solid #e9ecef',
+          borderRadius: '8px',
+          padding: '20px',
+          marginBottom: '20px',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            marginBottom: '12px'
+          }}>
+            <span style={{ fontSize: '20px' }}>📄</span>
+            <span style={{ fontWeight: 600, color: '#333' }}>選択されたファイル:</span>
+            <span style={{ color: '#007bff' }}>{selectedFile.name}</span>
+          </div>
+          <p style={{
+            margin: 0,
+            fontSize: '14px',
+            color: '#666'
+          }}>ファイルサイズ: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+        </div>
+
+        <GenerationTypeSelector
+          onTypeSelect={handleTypeSelect}
+          isLoading={isLoading}
+        />
+
+        <div style={{
+          display: 'flex',
+          gap: '16px',
+          justifyContent: 'center',
+          marginTop: '30px'
+        }}>
+          <button
+            onClick={handleCancel}
+            disabled={isLoading}
+            style={{
+              padding: '12px 24px',
+              border: '2px solid #ccc',
+              borderRadius: '6px',
+              backgroundColor: '#fff',
+              color: '#333',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: 500,
+              opacity: isLoading ? 0.6 : 1,
+              transition: 'all 0.3s ease'
+            }}
+          >
+            キャンセル
+          </button>
+          <button
+            onClick={handleFileSelectClick}
+            disabled={isLoading}
+            style={{
+              padding: '12px 32px',
+              border: 'none',
+              borderRadius: '6px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: 600,
+              opacity: isLoading ? 0.6 : 1,
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 4px rgba(0,123,255,0.2)'
+            }}
+          >
+            {isLoading ? '処理中...' : '生成開始'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -94,7 +203,6 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading }) => {
           )}
         </div>
       </div>
-
     </div>
   );
 };

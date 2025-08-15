@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import ResultDisplay from './components/ResultDisplay';
-import { AppState } from './types';
+import IndividualResultDisplay from './components/IndividualResultDisplay';
+import { AppState, GenerationType } from './types';
 import { ApiService, downloadAsFile } from './services/api';
 import { SystemRequirementsResponse } from './types';
 
@@ -13,33 +14,70 @@ const App: React.FC = () => {
     extractedText: null,
     generatedRequirements: null,
     currentStep: 'upload',
+    generationType: null,
+    individualResults: {},
   });
 
-  const handleFileSelect = async (file: File, generationType: 'comprehensive' | 'basic' = 'comprehensive') => {
+  const handleFileSelect = async (file: File, generationType: GenerationType = 'comprehensive') => {
     setState(prev => ({
       ...prev,
       isLoading: true,
       error: null,
       uploadedFile: file,
+      generationType,
       currentStep: 'processing',
     }));
 
     try {
-      // 型を明示的に指定
-      let response: SystemRequirementsResponse;
-      if (generationType === 'comprehensive') {
-        response = await ApiService.generateComprehensive(file);
+      if (generationType === 'comprehensive' || generationType === 'basic') {
+        // 包括的・基本生成の場合
+        let response: SystemRequirementsResponse;
+        if (generationType === 'comprehensive') {
+          response = await ApiService.generateComprehensive(file);
+        } else {
+          response = await ApiService.uploadAndGenerate(file);
+        }
+        
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          extractedText: response.extracted_text,
+          generatedRequirements: response.generated_requirements,
+          currentStep: 'result',
+        }));
       } else {
-        response = await ApiService.uploadAndGenerate(file);
+        // 個別生成の場合
+        let result: string = '';
+        
+        switch (generationType) {
+          case 'functional-diagram':
+            const diagResponse = await ApiService.generateFunctionalDiagram(file);
+            result = diagResponse.functional_diagram;
+            break;
+          case 'external-interfaces':
+            const extResponse = await ApiService.generateExternalInterfaces(file);
+            result = extResponse.external_interfaces;
+            break;
+          case 'performance':
+            const perfResponse = await ApiService.generatePerformanceRequirements(file);
+            result = perfResponse.performance_requirements;
+            break;
+          case 'security':
+            const secResponse = await ApiService.generateSecurityRequirements(file);
+            result = secResponse.security_requirements;
+            break;
+        }
+        
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          individualResults: {
+            ...prev.individualResults,
+            [generationType.replace('-', '')]: result
+          },
+          currentStep: 'result',
+        }));
       }
-      
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        extractedText: response.extracted_text,
-        generatedRequirements: response.generated_requirements,
-        currentStep: 'result',
-      }));
     } catch (error) {
       setState(prev => ({
         ...prev,
@@ -65,7 +103,33 @@ const App: React.FC = () => {
       extractedText: null,
       generatedRequirements: null,
       currentStep: 'upload',
+      generationType: null,
+      individualResults: {},
     });
+  };
+
+  const handleGenerateMore = (file: File) => {
+    setState(prev => ({
+      ...prev,
+      currentStep: 'upload',
+      isLoading: false,
+      error: null,
+    }));
+  };
+
+  const getIndividualResult = (generationType: GenerationType, results: any): string => {
+    switch (generationType) {
+      case 'functional-diagram':
+        return results.functionaldiagram || '';
+      case 'external-interfaces':
+        return results.externalinterfaces || '';
+      case 'performance':
+        return results.performance || '';
+      case 'security':
+        return results.security || '';
+      default:
+        return '';
+    }
   };
 
   return (
@@ -160,15 +224,27 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {state.currentStep === 'result' && state.uploadedFile && state.extractedText && state.generatedRequirements && (
+          {state.currentStep === 'result' && state.uploadedFile && (
             <div className="result-section">
-              <ResultDisplay
-                filename={state.uploadedFile.name}
-                extractedText={state.extractedText}
-                generatedRequirements={state.generatedRequirements}
-                onDownload={handleDownload}
-                onReset={handleReset}
-              />
+              {(state.generationType === 'comprehensive' || state.generationType === 'basic') && 
+               state.extractedText && state.generatedRequirements ? (
+                <ResultDisplay
+                  filename={state.uploadedFile.name}
+                  extractedText={state.extractedText}
+                  generatedRequirements={state.generatedRequirements}
+                  onDownload={handleDownload}
+                  onReset={handleReset}
+                />
+              ) : state.generationType && (
+                <IndividualResultDisplay
+                  filename={state.uploadedFile.name}
+                  generationType={state.generationType}
+                  result={getIndividualResult(state.generationType, state.individualResults)}
+                  onReset={handleReset}
+                  onGenerateMore={handleGenerateMore}
+                  uploadedFile={state.uploadedFile}
+                />
+              )}
             </div>
           )}
         </div>

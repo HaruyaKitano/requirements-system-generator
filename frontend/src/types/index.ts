@@ -26,12 +26,47 @@ export interface AppState {
   extractedText: string | null;
   generatedRequirements: string | null;
   currentStep: 'upload' | 'processing' | 'result';
+  generationType: GenerationType | null;
+  individualResults: {
+    functionalDiagram?: string;
+    externalInterfaces?: string;
+    performanceRequirements?: string;
+    securityRequirements?: string;
+  };
 }
 
 // ファイルアップロード用の型
 export interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File, generationType?: GenerationType) => void;
   isLoading: boolean;
+}
+
+// 生成タイプの型
+export type GenerationType = 'comprehensive' | 'basic' | 'functional-diagram' | 'external-interfaces' | 'performance' | 'security';
+
+// 個別生成レスポンスの型
+export interface FunctionalDiagramResponse {
+  original_filename: string;
+  functional_diagram: string;
+  status: string;
+}
+
+export interface ExternalInterfacesResponse {
+  original_filename: string;
+  external_interfaces: string;
+  status: string;
+}
+
+export interface PerformanceRequirementsResponse {
+  original_filename: string;
+  performance_requirements: string;
+  status: string;
+}
+
+export interface SecurityRequirementsResponse {
+  original_filename: string;
+  security_requirements: string;
+  status: string;
 }
 
 // 結果表示用の型
