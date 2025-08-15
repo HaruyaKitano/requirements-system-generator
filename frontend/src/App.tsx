@@ -3,6 +3,7 @@ import FileUpload from './components/FileUpload';
 import ResultDisplay from './components/ResultDisplay';
 import { AppState } from './types';
 import { ApiService, downloadAsFile } from './services/api';
+import { SystemRequirementsResponse } from './types';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>({
@@ -14,7 +15,7 @@ const App: React.FC = () => {
     currentStep: 'upload',
   });
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = async (file: File, generationType: 'comprehensive' | 'basic' = 'comprehensive') => {
     setState(prev => ({
       ...prev,
       isLoading: true,
@@ -24,7 +25,13 @@ const App: React.FC = () => {
     }));
 
     try {
-      const response = await ApiService.uploadAndGenerate(file);
+      // 型を明示的に指定
+      let response: SystemRequirementsResponse;
+      if (generationType === 'comprehensive') {
+        response = await ApiService.generateComprehensive(file);
+      } else {
+        response = await ApiService.uploadAndGenerate(file);
+      }
       
       setState(prev => ({
         ...prev,
@@ -87,7 +94,7 @@ const App: React.FC = () => {
             margin: 0,
             fontSize: '16px',
             opacity: 0.9
-          }}>要件定義書をアップロードして、AIがシステム要件定義書のドラフトを自動生成します</p>
+          }}>要件定義書をアップロードして、機能構成図・外部IF・性能/セキュリティ要件を含む包括的なシステム要件定義書を自動生成します</p>
         </div>
       </header>
 
@@ -143,11 +150,11 @@ const App: React.FC = () => {
               <div className="processing-content">
                 <div className="spinner-large"></div>
                 <h2>処理中...</h2>
-                <p>ファイルを解析してシステム要件定義書を生成しています</p>
+                <p>ファイルを解析して包括的なシステム要件定義書を生成しています</p>
                 <div className="processing-steps">
                   <div className="step completed">✓ ファイルアップロード完了</div>
                   <div className="step processing">⏳ テキスト抽出中...</div>
-                  <div className="step">🤖 AI分析・生成中...</div>
+                  <div className="step">🤖 AI分析・生成中（機能構成図・外部IF・性能/セキュリティ要件含む）...</div>
                 </div>
               </div>
             </div>

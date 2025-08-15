@@ -74,6 +74,91 @@ export class ApiService {
   }
 
   /**
+   * 包括的なシステム要件定義書を生成
+   */
+  static async generateComprehensive(file: File): Promise<SystemRequirementsResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post<SystemRequirementsResponse>(
+      '/generate-comprehensive',
+      formData,
+      {
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(`Upload progress: ${percentCompleted}%`);
+          }
+        },
+      }
+    );
+
+    return response.data;
+  }
+
+  /**
+   * 機能構成図を生成
+   */
+  static async generateFunctionalDiagram(file: File): Promise<{ original_filename: string; functional_diagram: string; status: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post(
+      '/generate-functional-diagram',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * 外部インターフェース要件を生成
+   */
+  static async generateExternalInterfaces(file: File): Promise<{ original_filename: string; external_interfaces: string; status: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post(
+      '/generate-external-interfaces',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * 性能要件を生成
+   */
+  static async generatePerformanceRequirements(file: File): Promise<{ original_filename: string; performance_requirements: string; status: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post(
+      '/generate-performance-requirements',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
+   * セキュリティ要件を生成
+   */
+  static async generateSecurityRequirements(file: File): Promise<{ original_filename: string; security_requirements: string; status: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post(
+      '/generate-security-requirements',
+      formData
+    );
+
+    return response.data;
+  }
+
+  /**
    * ヘルスチェック
    */
   static async healthCheck(): Promise<{ status: string }> {
@@ -84,13 +169,6 @@ export class ApiService {
 
 // ファイルバリデーション関数
 export const validateFile = (file: File): string | null => {
-  const allowedTypes = [
-    'application/pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-excel',
-  ];
 
   const allowedExtensions = ['.pdf', '.docx', '.doc', '.xlsx', '.xls'];
   

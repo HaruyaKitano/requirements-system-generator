@@ -102,5 +102,132 @@ async def extract_text_only(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error extracting text: {str(e)}")
 
+@app.post("/generate-comprehensive")
+async def generate_comprehensive_requirements(file: UploadFile = File(...)):
+    """
+    包括的なシステム要件定義書を生成（機能構成図・外部IF・性能・セキュリティ要件を含む）
+    """
+    try:
+        # ファイル形式のチェック
+        allowed_extensions = {'.pdf', '.docx', '.doc', '.xlsx', '.xls'}
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        
+        if file_extension not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported file format. Allowed: {', '.join(allowed_extensions)}"
+            )
+
+        # ファイル内容を読み込み
+        file_content = await file.read()
+        
+        # テキスト抽出
+        extracted_text = file_processor.extract_text(file_content, file_extension)
+        
+        if not extracted_text.strip():
+            raise HTTPException(
+                status_code=400,
+                detail="No text could be extracted from the file"
+            )
+
+        # 包括的なシステム要件定義書生成
+        system_requirements = await openai_client.generate_system_requirements(extracted_text)
+        
+        return {
+            "original_filename": file.filename,
+            "extracted_text": extracted_text,
+            "generated_requirements": system_requirements,
+            "status": "success"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.post("/generate-functional-diagram")
+async def generate_functional_diagram(file: UploadFile = File(...)):
+    """
+    機能構成図を生成
+    """
+    try:
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        file_content = await file.read()
+        extracted_text = file_processor.extract_text(file_content, file_extension)
+        
+        functional_diagram = await openai_client.generate_functional_diagram(extracted_text)
+        
+        return {
+            "original_filename": file.filename,
+            "functional_diagram": functional_diagram,
+            "status": "success"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating functional diagram: {str(e)}")
+
+@app.post("/generate-external-interfaces")
+async def generate_external_interfaces(file: UploadFile = File(...)):
+    """
+    外部インターフェース要件を生成
+    """
+    try:
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        file_content = await file.read()
+        extracted_text = file_processor.extract_text(file_content, file_extension)
+        
+        external_interfaces = await openai_client.generate_external_interfaces(extracted_text)
+        
+        return {
+            "original_filename": file.filename,
+            "external_interfaces": external_interfaces,
+            "status": "success"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating external interfaces: {str(e)}")
+
+@app.post("/generate-performance-requirements")
+async def generate_performance_requirements(file: UploadFile = File(...)):
+    """
+    性能要件を生成
+    """
+    try:
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        file_content = await file.read()
+        extracted_text = file_processor.extract_text(file_content, file_extension)
+        
+        performance_requirements = await openai_client.generate_performance_requirements(extracted_text)
+        
+        return {
+            "original_filename": file.filename,
+            "performance_requirements": performance_requirements,
+            "status": "success"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating performance requirements: {str(e)}")
+
+@app.post("/generate-security-requirements")
+async def generate_security_requirements(file: UploadFile = File(...)):
+    """
+    セキュリティ要件を生成
+    """
+    try:
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        file_content = await file.read()
+        extracted_text = file_processor.extract_text(file_content, file_extension)
+        
+        security_requirements = await openai_client.generate_security_requirements(extracted_text)
+        
+        return {
+            "original_filename": file.filename,
+            "security_requirements": security_requirements,
+            "status": "success"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating security requirements: {str(e)}")
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
