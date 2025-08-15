@@ -159,95 +159,67 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading, sessio
       margin: '0 auto'
     }}>
       {sessionId && (
-        <div style={{
-          background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-          border: '1px solid #93c5fd',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '32px',
+        <div className="render-card" style={{
+          padding: 'var(--space-6)',
+          marginBottom: 'var(--space-8)',
           textAlign: 'center',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          background: 'rgba(124, 58, 237, 0.05)',
+          border: '1px solid rgba(124, 58, 237, 0.2)'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '12px',
-            marginBottom: '16px'
+            gap: 'var(--space-3)',
+            marginBottom: 'var(--space-4)'
           }}>
             <div style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '12px',
+              width: '32px',
+              height: '32px',
+              background: 'var(--color-purple-600)',
+              borderRadius: 'var(--radius-md)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '18px',
+              fontSize: '16px',
               color: 'white'
             }}>💾</div>
-            <span style={{ 
-              fontWeight: 700, 
-              color: '#1e40af',
-              fontSize: '18px',
-              letterSpacing: '-0.025em'
-            }}>ドキュメント保存済み</span>
+            <h3 className="render-heading-3" style={{ 
+              color: 'var(--color-purple-700)'
+            }}>ドキュメント保存済み</h3>
           </div>
-          <p style={{
-            margin: '0 0 20px 0',
-            fontSize: '15px',
-            color: '#1e40af',
-            lineHeight: 1.6,
-            opacity: 0.9
+          <p className="render-text-body" style={{
+            marginBottom: 'var(--space-5)',
+            color: 'var(--color-purple-600)'
           }}>
             既にアップロードされたドキュメントから<br />追加の要件を生成できます
           </p>
           <button
+            className="render-button render-button-primary"
             onClick={handleSessionBasedGeneration}
-            style={{
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '15px',
-              fontWeight: 600,
-              boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.3)',
-              transform: 'translateY(0)',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 25px 0 rgba(59, 130, 246, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(59, 130, 246, 0.3)';
-            }}
           >
-            ✨ 追加要件を生成
+            <span>✨</span>
+            <span>追加要件を生成</span>
           </button>
         </div>
       )}
       
       <div
         {...getRootProps()}
+        className="render-card"
         style={{
-          border: `2px dashed ${isDragActive ? '#667eea' : '#cbd5e1'}`,
-          borderRadius: '20px',
-          padding: '48px 32px',
+          border: isDragActive 
+            ? `2px dashed var(--color-purple-500)` 
+            : `2px dashed var(--color-border-strong)`,
+          padding: 'var(--space-12) var(--space-8)',
           textAlign: 'center',
           cursor: isLoading ? 'not-allowed' : 'pointer',
-          transition: 'all 0.3s ease',
+          transition: 'all 0.2s ease',
           background: isDragActive 
-            ? 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' 
-            : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            ? 'rgba(124, 58, 237, 0.05)' 
+            : 'var(--color-surface)',
           opacity: isLoading ? 0.6 : 1,
-          boxShadow: isDragActive 
-            ? '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(102, 126, 234, 0.1)'
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          transform: isDragActive ? 'scale(1.02)' : 'scale(1)'
+          transform: isDragActive ? 'scale(1.01)' : 'scale(1)'
         }}
       >
         <input {...getInputProps()} />
